@@ -281,6 +281,29 @@ class ScalaUnresolvedCompletionTest extends ScalaLightCodeInsightFixtureTestAdap
     )
   }
 
+  def testNoCompletionAfterOverrideField(): Unit = noCompletion("override val <caret> }", Seq("variable"))
+
+  def testNoCompletionAfterOverrideClazz(): Unit = noCompletion("override class <caret> }", Seq("TestType"))
+
+  def testNoCompletionAfterOverrideType(): Unit = noCompletion("override type <caret> }", Seq("TestType"))
+
+  def testNoCompletionAfterOverrideMethod(): Unit = noCompletion("override def <caret> }", Seq("method(i: Int, str: String)"))
+
+  private def noCompletion(text: String, excluded: Seq[String]): Unit = {
+    val fileBaseText =
+      """
+        |class Test {
+        |  variable + 3
+        |
+        |  method(12, "test")
+        |
+        |  val t: TestType = _
+        |
+      """
+
+    doTest(fileBaseText + text, Seq.empty, excluded)
+  }
+
   private def doHighlighting(fileText: String) = {
     val fixture = getFixture
     fixture.openFileInEditor(fixture.configureByText("dummy.scala", normalize(fileText)).getVirtualFile)
@@ -298,8 +321,8 @@ class ScalaUnresolvedCompletionTest extends ScalaLightCodeInsightFixtureTestAdap
         .map(_.getLookupString)
         .sorted
 
-    Assert.assertEquals(null, includedSeq.sorted.mkString("\n"), actual.mkString("\n"))
     assertContaints(actual, excludedSeq)
+    Assert.assertEquals(null, includedSeq.sorted.mkString("\n"), actual.mkString("\n"))
   }
 
   private def doTest(fileText: String, resultText: String): Unit = {

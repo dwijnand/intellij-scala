@@ -10,13 +10,13 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
 import com.intellij.util.{ProcessingContext, Processor}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDeclaration, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScFieldIdImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -43,7 +43,9 @@ class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
       val position = positionFromParameters(completionParameters)
 
       position.getContext match {
-        case declaration@(_: ScTypeDefinition | _: ScTypeAliasDeclaration | _: ScFunctionDeclaration | _: ScFieldIdImpl) =>
+        case modOwner: ScModifierListOwner if modOwner.hasModifierPropertyScala("override") =>
+        case (_: ScFieldId) childOf (_ childOf (modOwner: ScModifierListOwner)) if modOwner.hasModifierPropertyScala("override") =>
+        case declaration@(_: ScTypeDefinition | _: ScTypeAliasDeclaration | _: ScFunctionDeclaration | _: ScFieldId) =>
           val result = addElementsOrderSorter(completionParameters, completionResultSet)
           handleReferencesInScope(declaration, result, completionParameters.getOriginalFile)
         case _ =>
@@ -58,7 +60,7 @@ class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
       def refKinds = ref.getKinds(incomplete = false)
 
       position match {
-        case _: ScFieldIdImpl if !refWithMethodCallParent => refKinds.contains(VAL) || refKinds.contains(VAR)
+        case _: ScFieldId if !refWithMethodCallParent => refKinds.contains(VAL) || refKinds.contains(VAR)
         case _: ScObject => refKinds.contains(OBJECT)
         case cl: ScClass if cl.isCase && refWithMethodCallParent => refKinds.contains(OBJECT) || refKinds.contains(CLASS)
         case _: ScTypeDefinition | _: ScTypeAliasDeclaration => refKinds.contains(CLASS)
