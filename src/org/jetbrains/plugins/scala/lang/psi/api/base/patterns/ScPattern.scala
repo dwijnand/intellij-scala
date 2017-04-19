@@ -114,15 +114,12 @@ trait ScPattern extends ScalaPsiElement with Typeable {
 
 object ScPattern {
   implicit class Ext(val pattern: ScPattern) extends AnyVal {
-    private implicit def project = pattern.getProject
-    private implicit def resolveScope = pattern.getResolveScope
-    private implicit def typeSystem = pattern.typeSystem
-    private implicit def elementScope = pattern.elementScope
-    private implicit def manager = pattern.manager
+
+    import pattern.{elementScope, projectContext}
 
     @CachedInsidePsiElement(pattern, ModCount.getBlockModificationCount)
     def expectedType: Option[ScType] = {
-      val psiManager = ScalaPsiManager.instance(project)
+      val psiManager = ScalaPsiManager.instance
 
       pattern.getContext match {
         case list: ScPatternList => list.getContext match {
@@ -173,12 +170,12 @@ object ScPattern {
               case _ => None
             }
           case _: ScXmlPattern =>
-            val nodeClass: Option[PsiClass] = psiManager.getCachedClass(resolveScope, "scala.xml.Node")
+            val nodeClass: Option[PsiClass] = psiManager.getCachedClass(elementScope.scope, "scala.xml.Node")
             nodeClass.flatMap { nodeClass =>
               pattern match {
                 case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
                   val seqClass: Option[PsiClass] =
-                    psiManager.getCachedClass(resolveScope, "scala.collection.Seq")
+                    psiManager.getCachedClass(elementScope.scope, "scala.collection.Seq")
                   seqClass.map { seqClass =>
                     ScParameterizedType(ScDesignatorType(seqClass), Seq(ScDesignatorType(nodeClass)))
                   }
@@ -193,7 +190,7 @@ object ScPattern {
             case _ => None
           }
           case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
-            val thr = psiManager.getCachedClass(resolveScope, "java.lang.Throwable")
+            val thr = psiManager.getCachedClass(elementScope.scope, "java.lang.Throwable")
             thr.map(ScalaType.designator(_))
           case b: ScBlockExpr =>
             b.expectedType(fromUnderscore = false) match {

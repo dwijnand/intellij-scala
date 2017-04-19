@@ -55,7 +55,7 @@ object Dependency {
       case _ =>
     }
 
-    implicit val ts = ref.typeSystem
+    implicit val ts = ref.projectContext
 
     val processor =
       new CompletionProcessor(ref.getKinds(incomplete = false), ref, collectImplicits = false, Some(ref.refName), isIncomplete = false) {
@@ -90,7 +90,7 @@ object Dependency {
   }
 
   private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType])
-                           (implicit typeSystem: TypeSystem = reference.typeSystem): Option[Dependency] = {
+                           (implicit typeSystem: TypeSystem = reference.projectContext): Option[Dependency] = {
 
     def pathFor(entity: PsiNamedElement, member: Option[String] = None): Option[Path] = {
       if (!ScalaPsiUtil.hasStablePath(entity)) return None

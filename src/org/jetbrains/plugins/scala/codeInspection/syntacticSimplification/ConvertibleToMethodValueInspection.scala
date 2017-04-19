@@ -93,7 +93,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
   }
 
   private def isSuitableForReplace(oldExpr: ScExpression, newExprText: String)
-                                  (implicit typeSystem: TypeSystem = oldExpr.typeSystem): Boolean = {
+                                  (implicit typeSystem: TypeSystem = oldExpr.projectContext): Boolean = {
     val newExpr = createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
       case Some(expectedType) if FunctionType.isFunctionType(expectedType) =>

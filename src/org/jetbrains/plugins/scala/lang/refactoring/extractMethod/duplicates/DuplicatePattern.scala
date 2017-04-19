@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -70,8 +71,9 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
     }
   }
 
-  def findDuplicates(scope: PsiElement)
-                    (implicit typeSystem: TypeSystem): Seq[DuplicateMatch] = {
+  def findDuplicates(scope: PsiElement): Seq[DuplicateMatch] = {
+    implicit val ctx: ProjectContext = scope
+
     val result = ListBuffer[DuplicateMatch]()
     val seen = mutable.Set[PsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {

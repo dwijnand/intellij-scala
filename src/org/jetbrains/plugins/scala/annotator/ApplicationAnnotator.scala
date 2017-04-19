@@ -152,7 +152,7 @@ trait ApplicationAnnotator {
   }
 
   def annotateMethodInvocation(call: MethodInvocation, holder: AnnotationHolder)
-                              (implicit typeSystem: TypeSystem = call.typeSystem) {
+                              (implicit typeSystem: TypeSystem = call.projectContext) {
     //do we need to check it:
     call.getEffectiveInvokedExpr match {
       case ref: ScReferenceElement =>

@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
@@ -110,7 +111,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def parameterWithoutType(param: ScParameter) {
-    import param.typeSystem
+    import param.projectContext
     param.parentsInFile.findByType[ScFunctionExpr] match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
@@ -134,7 +135,8 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def parameterWithType(param: ScParameter) {
-    implicit val manager = param.getManager
+    implicit val projectContext = param.projectContext
+
     val newParam = createParameterFromText(param.name)
     val newClause = createClauseForFunctionExprFromText(newParam.getText)
     val expr : ScFunctionExpr = PsiTreeUtil.getParentOfType(param, classOf[ScFunctionExpr], false)
@@ -149,10 +151,11 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def addActualType(annotation: ScTypeElement, anchor: PsiElement): PsiElement = {
+    implicit val ctx: ProjectContext = anchor
+
     val parent = anchor.getParent
     val added = parent.addAfter(annotation, anchor)
 
-    implicit val manager = anchor.getManager
     parent.addAfter(createWhitespace, anchor)
     parent.addAfter(createColon, anchor)
     added
@@ -186,7 +189,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   private def simplify(expression: ScExpression): Unit = expression match {
     case call: ScGenericCall if TypeAnnotationUtil.isEmptyCollectionFactory(call) =>
       val s = call.getText
-      implicit val manager = expression.manager
+      implicit val manager = expression.projectContext
       val newExpression = ScalaPsiElementFactory.createExpressionFromText(s.substring(0, s.indexOf('[')))
       expression.replace(newExpression)
     case _ =>

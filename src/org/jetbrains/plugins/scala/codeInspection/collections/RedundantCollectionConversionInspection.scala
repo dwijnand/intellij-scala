@@ -15,7 +15,7 @@ object RedundantCollectionConversion extends SimplificationType {
   override def hint: String = InspectionBundle.message("redundant.collection.conversion")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    implicit val typeSystem = expr.typeSystem
+    implicit val typeSystem = expr.projectContext
     val withGeneric = expr match {
       case ChildOf(gc: ScGenericCall) => gc
       case ref => ref

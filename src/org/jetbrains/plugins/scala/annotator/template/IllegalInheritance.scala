@@ -20,7 +20,7 @@ object IllegalInheritance extends AnnotatorPart[ScTemplateDefinition] {
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if(!typeAware) return
 
-    implicit val typeSystem = definition.typeSystem
+    implicit val typeSystem = definition.projectContext
     definition.selfTypeElement.flatMap(_.getType(TypingContext.empty).toOption).
       orElse(definition.getType(TypingContext.empty).toOption).foreach { ownType =>
       AnnotatorPart.superRefsWithSubst(definition).foreach {

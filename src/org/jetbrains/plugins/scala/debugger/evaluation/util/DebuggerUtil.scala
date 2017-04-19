@@ -153,7 +153,7 @@ object DebuggerUtil {
   }
 
   def getFunctionJVMSignature(function: ScMethodLike)
-                             (implicit typeSystem: TypeSystem = function.typeSystem): JVMName = {
+                             (implicit typeSystem: TypeSystem = function.projectContext): JVMName = {
     val typeParams = function match {
       case fun: ScFunction if !fun.isConstructor => fun.typeParameters
       case _: ScFunction | _: ScPrimaryConstructor =>

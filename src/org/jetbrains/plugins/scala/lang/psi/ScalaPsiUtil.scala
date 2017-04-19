@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -53,7 +52,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -107,7 +106,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def functionArrow(project: Project): String = {
+  def functionArrow(implicit project: ProjectContext): String = {
     val useUnicode = ScalaCodeStyleSettings.getInstance(project).REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
     if (useUnicode) ScalaTypedHandler.unicodeCaseArrow else "=>"
   }
@@ -337,7 +336,7 @@ object ScalaPsiUtil {
       else if (isUpdate) "update"
       else "apply"
 
-    implicit val manager = call.getManager
+    implicit val projectContext = call.projectContext
     val args: Seq[ScExpression] = call.argumentExpressions ++ (
       if (isUpdate) call.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
         case Some(x) => Seq[ScExpression](x)
@@ -508,7 +507,6 @@ object ScalaPsiUtil {
   def collectImplicitObjects(_tp: ScType)
                             (implicit elementScope: ElementScope): Seq[ScType] = {
     val ElementScope(project, scope) = elementScope
-    implicit val typeSystem = elementScope.typeSystem
 
     val tp = _tp.removeAliasDefinitions()
     val implicitObjectsCache = ScalaPsiManager.instance(project).collectImplicitObjectsCache
@@ -1204,7 +1202,6 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
-        implicit val typeSystem = elementScope.typeSystem
         substitutor.subst(`type`.toScType()).toPsiType()
       }
 
@@ -1519,14 +1516,14 @@ object ScalaPsiUtil {
 
   def isArgumentOfFunctionType(expr: ScExpression): Boolean = {
 
-    import expr.typeSystem
+    import expr.projectContext
 
     isCanonicalArg(expr) && parameterOf(expr).exists(p => FunctionType.isFunctionType(p.paramType))
   }
 
   object MethodValue {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
-      import expr.typeSystem
+      import expr.projectContext
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
         case expected if isSAMEnabled(expr) =>
@@ -1785,7 +1782,7 @@ object ScalaPsiUtil {
   }
 
   def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
-    implicit val manager = member.getManager
+    implicit val projectContext = member.projectContext
     val modifierList = member.getModifierList
     if (newVisibility == "" || newVisibility == "public") {
       modifierList.accessModifier.foreach(_.delete())
@@ -1800,7 +1797,7 @@ object ScalaPsiUtil {
         } else {
           val mod = modifierList.getFirstChild
           modifierList.addBefore(newElem, mod)
-          modifierList.addBefore(createWhitespace(manager), mod)
+          modifierList.addBefore(createWhitespace, mod)
         }
     }
   }
@@ -1972,7 +1969,6 @@ object ScalaPsiUtil {
     */
   private def extrapolateWildcardBounds(tp: ScType, expected: ScType, scalaVersion: ScalaLanguageLevel)
                                        (implicit elementScope: ElementScope): Option[ScType] = {
-    implicit val typeSystem = elementScope.typeSystem
     expected match {
       case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {
@@ -2023,7 +2019,8 @@ object ScalaPsiUtil {
   }
 
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
-    implicit val manager = element.getManager
+    import element.projectContext
+
     val block = createElementFromText("(_)")
 
     for (lBrace <- Option(element.findFirstChildByType(ScalaTokenTypes.tLBRACE))) {

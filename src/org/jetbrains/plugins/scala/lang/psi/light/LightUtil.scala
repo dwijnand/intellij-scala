@@ -23,7 +23,7 @@ object LightUtil {
    * @return Java throws section string or empty string
    */
   def getThrowsSection(holder: ScAnnotationsHolder)
-                      (implicit typeSystem: TypeSystem = holder.typeSystem): String = {
+                      (implicit typeSystem: TypeSystem = holder.projectContext): String = {
     val throwAnnotations = holder.annotations("scala.throws").foldLeft[ArrayBuffer[String]](ArrayBuffer()) {
       case (accumulator, annotation) =>
         implicit val elementScope = holder.elementScope

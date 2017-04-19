@@ -60,7 +60,7 @@ object SimpleBooleanMatchUtil {
       case None => stmt
       case Some((clause, value)) =>
         val exprText = if (value) stmt.expr.get.getText else "!" + getParenthesisedText(stmt.expr.get)
-        createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }")(stmt.manager)
+        createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }")(stmt.projectContext)
     }
   }
 
@@ -75,7 +75,7 @@ object SimpleBooleanMatchUtil {
              |} else {
              |${getTextWithoutBraces(falseClause)}
              |}
-           """.stripMargin)(stmt.manager)
+           """.stripMargin)(stmt.projectContext)
       case _ => stmt
     }
   }
@@ -135,7 +135,7 @@ object SimpleBooleanMatchUtil {
   }
 
   private def isOfBooleanType(expr: ScExpression)
-                             (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
+                             (implicit typeSystem: TypeSystem = expr.projectContext): Boolean = {
     expr.getType(TypingContext.empty).getOrAny.weakConforms(api.Boolean)
   }
 

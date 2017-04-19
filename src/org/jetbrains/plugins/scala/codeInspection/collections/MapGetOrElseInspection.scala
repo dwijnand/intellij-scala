@@ -19,7 +19,7 @@ object MapGetOrElse extends SimplificationType() {
   def hint: String = InspectionBundle.message("map.getOrElse.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    import expr.typeSystem
+    import expr.projectContext
     expr match {
       case qual`.mapOnOption`(fun)`.getOrElse`(default) =>
         replacementText(qual, fun, default) match {

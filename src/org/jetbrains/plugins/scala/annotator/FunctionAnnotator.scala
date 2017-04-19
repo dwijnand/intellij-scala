@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
 
 trait FunctionAnnotator {
   def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean)
-                      (implicit typeSystem: TypeSystem = function.typeSystem) {
+                      (implicit typeSystem: TypeSystem = function.projectContext) {
     if (!function.hasExplicitType && !function.returnTypeIsDefined) {
       function.recursiveReferences.foreach { ref =>
           val message = ScalaBundle.message("function.recursive.need.result.type", function.name)

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.ResolveState
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -30,7 +30,7 @@ case class ExtensionConversionData(baseExpr: ScExpression,
     }
   val kinds: Set[ResolveTargets.Value] = processor.kinds
 
-  implicit val typeSystem: TypeSystem = baseExpr.typeSystem
+  implicit val typeSystem: TypeSystem = baseExpr.projectContext
 }
 
 object ExtensionConversionHelper {

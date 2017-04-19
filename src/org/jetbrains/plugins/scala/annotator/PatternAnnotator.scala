@@ -3,8 +3,7 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScTypeElementExt}
@@ -36,7 +35,7 @@ trait PatternAnnotator {
 object PatternAnnotator {
 
   def checkPattern(pattern: ScPattern, holder: AnnotationHolder)
-                  (implicit typeSystem: TypeSystem = pattern.typeSystem): Unit = {
+                  (implicit typeSystem: TypeSystem = pattern.projectContext): Unit = {
     for {
       pType <- PatternAnnotatorUtil.patternType(pattern)
       eType <- pattern.expectedType

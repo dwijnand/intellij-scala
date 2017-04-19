@@ -94,7 +94,7 @@ object ScalaRefactoringUtil {
       i = i - 1
     }
 
-    implicit val manager = e.getManager
+    implicit val projectContext = e.projectContext
     if (hasNlToken) e = createExpressionFromText(text.substring(0, i + 1))
     e.getParent match {
       case x: ScMethodCall if x.args.exprs.nonEmpty => createExpressionFromText(e.getText + " _")

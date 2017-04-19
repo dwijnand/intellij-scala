@@ -17,7 +17,7 @@ object ToSetAndBackToDistinct extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.toSet.and.back.with.distinct")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    import expr.typeSystem
+    import expr.projectContext
     expr match {
       case (qual@Typeable(qualType)) `.toSet` () `.toCollection` ()
         if sameCollectionType(qualType, expr.getType().getOrAny) && (isSeq(qual) || isArray(qual)) =>

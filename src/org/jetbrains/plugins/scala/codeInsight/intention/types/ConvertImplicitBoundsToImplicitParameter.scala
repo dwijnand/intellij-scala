@@ -56,7 +56,7 @@ object ConvertImplicitBoundsToImplicitParameter {
     }
 
     val declaredClauses: Seq[ScParameterClause] = paramOwner.allClauses
-    implicit val manager = paramOwner.getManager
+    implicit val projectContext = paramOwner.projectContext
     
     declaredClauses.lastOption match {
       case Some(paramClause) if paramClause.isImplicit =>

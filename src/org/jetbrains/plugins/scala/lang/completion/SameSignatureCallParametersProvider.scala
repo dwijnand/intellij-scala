@@ -4,8 +4,8 @@ package lang.completion
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
-import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
@@ -145,7 +145,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
   }
 
   private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet)
-                             (implicit typeSystem: TypeSystem = methodLike.typeSystem) {
+                             (implicit typeSystem: TypeSystem = methodLike.projectContext) {
     for (signature <- signatures if signature.forall(_._1 != null)) {
       val names = new ArrayBuffer[String]()
       val res = signature.map {

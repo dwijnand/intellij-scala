@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -51,6 +51,8 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    implicit val ctx: ProjectContext = project
+
     val expr = findExpression(element, editor).get
     if (expr == null || !expr.isValid) return
 
@@ -76,8 +78,6 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     for (m <- Extensions.getExtensions(Macro.EP_NAME)) {
       macros.add(m.getName)
     }
-
-    implicit val manager = element.getManager
 
     for (u <- underscores) {
       if (needComma) buf.append(",")

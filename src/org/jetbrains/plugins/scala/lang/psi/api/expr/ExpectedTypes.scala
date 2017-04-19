@@ -62,7 +62,7 @@ private[expr] object ExpectedTypes {
    */
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
-    import expr.typeSystem
+    import expr.projectContext
     @tailrec
     def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
       tp._1 match {

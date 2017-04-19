@@ -147,7 +147,7 @@ object TypeCheckToMatchUtil {
       val asInstOfInGuard = findAsInstOfCalls(guardCond, isInstOf)
       val asInstOfEverywhere = asInstOfInBody ++ asInstOfInGuard
 
-      implicit val manager = ifStmt.getManager
+      implicit val projectContext = ifStmt.projectContext
       if (asInstOfInBody.count(checkAndStoreNameAndDef) == 0) {
         //no usage of asInstanceOf
         if (asInstOfEverywhere.isEmpty) {

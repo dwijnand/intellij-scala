@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 
 trait TypedStatementAnnotator {
   def annotateTypedStatement(typedStatement: ScTypedStmt, holder: AnnotationHolder, highlightErrors: Boolean)
-                            (implicit typeSystem: TypeSystem = typedStatement.typeSystem) {
+                            (implicit typeSystem: TypeSystem = typedStatement.projectContext) {
     if (highlightErrors) {
       for(element <- typedStatement.typeElement)
         checkConformance(typedStatement.expr, element, holder)

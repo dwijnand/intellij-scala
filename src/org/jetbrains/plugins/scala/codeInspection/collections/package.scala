@@ -140,7 +140,7 @@ package object collections {
   }
 
   class FunctionExpressionWithReturnTypeTemplate(tp: ScType) {
-    def unapply(expr: ScExpression)(implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
+    def unapply(expr: ScExpression)(implicit typeSystem: TypeSystem = expr.projectContext): Boolean = {
       expr.getType(TypingContext.empty) match {
         case Success(result, _) =>
           result match {
@@ -412,7 +412,7 @@ package object collections {
       }
 
       def hasUnitReturnType(ref: ScReferenceExpression)
-                           (implicit typeSystem: TypeSystem = ref.typeSystem): Boolean = {
+                           (implicit typeSystem: TypeSystem = ref.projectContext): Boolean = {
         ref match {
           case MethodRepr(Typeable(FunctionType(_, _)), _, _, _) => false
           case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType

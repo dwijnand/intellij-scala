@@ -76,7 +76,7 @@ object SimplifyBooleanUtil {
   }
 
   private def isOfBooleanType(expr: ScExpression)
-                             (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
+                             (implicit typeSystem: TypeSystem = expr.projectContext): Boolean = {
     expr.getType(TypingContext.empty).getOrAny.weakConforms(api.Boolean)
   }
 
@@ -121,7 +121,7 @@ object SimplifyBooleanUtil {
   }
 
   private def simplifyInfixWithLiteral(value: Boolean, operation: String, expr: ScExpression): ScExpression = {
-    implicit val manager = expr.getManager
+    implicit val projectContext = expr.projectContext
     val text: String = booleanConst(expr) match {
       case Some(bool: Boolean) =>
         val result: Boolean = operation match {

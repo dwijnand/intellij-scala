@@ -6,7 +6,6 @@ import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -49,7 +48,7 @@ object AnnotatorHighlighter {
   }
 
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder)
-                               (implicit typeSystem: TypeSystem = refElement.typeSystem) {
+                               (implicit typeSystem: TypeSystem = refElement.projectContext) {
 
     def annotateCollectionByType(resolvedType: ScType) {
       if (ScalaNamesUtil.isOperatorName(

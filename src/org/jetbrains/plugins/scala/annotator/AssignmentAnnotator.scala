@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
 /**
@@ -22,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 
 trait AssignmentAnnotator {
   def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean)
-                        (implicit typeSystem: TypeSystem = assignment.typeSystem) {
+                        (implicit typeSystem: TypeSystem = assignment.projectContext) {
     val left = assignment.getLExpression
     val right = assignment.getRExpression
 

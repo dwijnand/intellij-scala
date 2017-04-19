@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
  */
 trait VariableDefinitionAnnotator {
   def annotateVariableDefinition(definition: ScVariableDefinition, holder: AnnotationHolder, highlightErrors: Boolean)
-                                (implicit typeSystem: TypeSystem = definition.typeSystem) {
+                                (implicit typeSystem: TypeSystem = definition.projectContext) {
     if (highlightErrors && definition.pList.simplePatterns) {
       for (expr <- definition.expr; element <- definition.children.findByType[ScSimpleTypeElement])
         checkConformance(expr, element, holder)
